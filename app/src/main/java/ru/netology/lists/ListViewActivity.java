@@ -21,10 +21,10 @@ import java.util.Map;
 
 public class ListViewActivity extends AppCompatActivity {
 
-    private static final String ATTRIBUTE_NAME_TITLE  = "title";
-    private static final String ATTRIBUTE_NAME_SUBTITLE  = "subtitle";
+    private static final String TITLE  = "title";
+    private static final String SUBTITLE  = "subtitle";
 
-    List<Map<String, String>> values = prepareContent();
+    List<Map<String, String>> values = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,10 +35,10 @@ public class ListViewActivity extends AppCompatActivity {
 
         ListView list = findViewById(R.id.list);
 
+        prepareContent();
 
         final BaseAdapter listContentAdapter = createAdapter(values);
 
-        list.setAdapter(listContentAdapter);
 
         list.setAdapter(listContentAdapter);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -63,23 +63,22 @@ public class ListViewActivity extends AppCompatActivity {
 
     @NonNull
     private SimpleAdapter createAdapter(List<Map<String, String>> values) {
-        String[] from = {ATTRIBUTE_NAME_TITLE, ATTRIBUTE_NAME_SUBTITLE};
+        String[] from = {TITLE, SUBTITLE};
         int [] to = {R.id.title, R.id.count};
         return new SimpleAdapter(this, values, R.layout.data_layout, from, to);
     }
 
-    @NonNull
-    private List<Map<String, String>> prepareContent() {
-        List<Map<String,String>> result = new ArrayList<>();
-        String[] arrayContent = getString(R.string.large_text).split("\n\n");
-        for (String s : arrayContent) {
-            Map<String,String> map = new HashMap<>();
-            map.put(ATTRIBUTE_NAME_TITLE, s);
-            map.put(ATTRIBUTE_NAME_SUBTITLE, s.length() + "");
-            result.add(map);
+    private void prepareContent() {
+        try {
+            prepareContentFromPrefs();
+        } catch (Exception e) {
+            e.printStackTrace();
+            prepareContentFromAssets();
+            SharedPreferences preferences = getSharedPreferences("values", MODE_PRIVATE);
+            preferences.edit().putString("values", getString(R.string.large_text)).apply();
         }
-        return result;
     }
+
 
     private void prepareContentFromPrefs() throws Exception {
         SharedPreferences preferences = getSharedPreferences("values", MODE_PRIVATE);
@@ -92,8 +91,8 @@ public class ListViewActivity extends AppCompatActivity {
         }
         for (String str : strings) {
             Map<String, String> map = new HashMap<>();
-            map.put(ATTRIBUTE_NAME_TITLE, str.length() + "");
-            map.put(ATTRIBUTE_NAME_SUBTITLE, str);
+            map.put(TITLE, str.length() + "");
+            map.put(SUBTITLE, str);
             values.add(map);
         }
     }
@@ -101,8 +100,8 @@ public class ListViewActivity extends AppCompatActivity {
         String[] strings = getString(R.string.large_text).split("\n\n");
         for (String str : strings) {
             Map<String, String> map = new HashMap<>();
-            map.put(ATTRIBUTE_NAME_TITLE, str.length() + "");
-            map.put(ATTRIBUTE_NAME_SUBTITLE, str);
+            map.put(TITLE, str.length() + "");
+            map.put(SUBTITLE, str);
             values.add(map);
         }
     }
